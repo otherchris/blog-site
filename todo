@@ -1,0 +1,5 @@
+backup data
+   - docker exec -t your-db-container pg_dumpall -c -U postgres | gzip > /var/data/postgres/backups/dump_date +%d-%m-%Y"_"%H_%M_%S.gz
+   - cat your_dump.sql | docker exec -i your-db-container psql -U postgres
+
+

@@ -1,0 +1,45 @@
+{
+  "variables": {
+    "git_sha": "{{env `GIT_SHA`}}",
+    "api_token": "{{env `API_TOKEN`}}"
+  },
+  "builders": [
+    {
+      "type": "digitalocean",
+      "api_token": "{{user `api_token`}}",
+      "image": "ubuntu-18-04-x64",
+      "region": "nyc3",
+      "size": "512mb",
+      "snapshot_name": "no-ghosts@{{user `git_sha`}}",
+      "ssh_username": "root"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["apt-get update", "apt install -y docker.io", "systemctl start docker", "systemctl enable docker"]
+    },
+    {
+      "type": "shell",
+      "inline": ["curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose ", "chmod +x /usr/local/bin/docker-compose"]
+    },
+    {
+      "type": "shell",
+      "inline": ["docker-compose --version"]
+    },
+    {
+      "type": "shell",
+      "inline": ["mkdir /api"]
+    },
+    {
+      "type": "file",
+      "source": "../docker-compose.yml",
+      "destination": "/api/"
+    },
+    {
+      "type": "file",
+      "source": "../schema.sql",
+      "destination": "/api/"
+    }
+  ]
+}
